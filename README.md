@@ -45,12 +45,13 @@ login.php   # login untuk admin dan tutor
 
 ## Diagram database
 
-Relasi di bawah disusun dari query di kode PHP. Tabel di database tidak memakai foreign key, jadi hubungannya dibaca dari nama kolom.
+Kolom dan tipe data diambil dari skema di `database/eduzone.sql` (kolom `video_FILENAME` dan `pdf_FILENAME` pada `MATERI` tidak digambar). Tabel tidak memakai foreign key, jadi relasinya dibaca dari nama kolom dan query di kode PHP.
 
 ```mermaid
 erDiagram
     SISWA ||--|| BIO_SISWA : "punya biodata"
     TUTOR ||--|| BIO_TUTOR : "punya biodata"
+    ADMIN ||--o{ JADWAL : "membuat"
     TUTOR ||--o{ JADWAL : "mengajar"
     TUTOR ||--o{ MATERI : "mengunggah"
     TUTOR ||--o{ ABSENSI : "mencatat"
@@ -58,79 +59,86 @@ erDiagram
     SISWA ||--o{ PEMBAYARAN : "membayar"
 
     ADMIN {
-        string admin_ID
-        string admin_USER
-        string admin_PASS
+        char admin_ID PK
+        char admin_USER
+        char admin_PASS
+        char admin_NAME
     }
     SISWA {
-        string siswa_ID
-        string siswa_USER
-        string siswa_PASS
+        char siswa_ID PK
+        char siswa_USER
+        char siswa_PASS
     }
     BIO_SISWA {
-        string siswa_ID
-        string siswa_NAME
-        string siswa_TINGKAT
-        string siswa_KELAS
+        char siswa_ID PK
+        char siswa_NAME
+        char siswa_TINGKAT
+        char siswa_KELAS
     }
     TUTOR {
-        string tutor_ID
-        string tutor_USER
-        string tutor_PASS
+        char tutor_ID PK
+        char tutor_USER
+        char tutor_PASS
     }
     BIO_TUTOR {
-        string tutor_ID
-        string tutor_NAME
+        int tutor_ID
+        char tutor_NAME
         date tutor_BOD
-        string tutor_KET
+        char tutor_KET
     }
     JADWAL {
-        string tutor_ID
-        date tanggal
-        string sesi
-        string tingkat
-        string kelas
-        string mapel
+        int admin_ID
+        char tutor_ID
+        date tanggal PK
+        int sesi PK
+        char tingkat
+        char kelas
+        char mapel
     }
     MATERI {
-        int materi_ID
-        string materi_TITLE
-        string materi_DESC
-        string materi_MAPEL
-        string materi_TINGKAT
-        string materi_KELAS
+        int materi_ID PK
+        int tutor_ID
+        varchar materi_TITLE
+        text materi_DESC
+        varchar materi_TINGKAT
+        varchar materi_KELAS
+        varchar materi_MAPEL
+        varchar video_PATH
+        varchar pdf_PATH
+        datetime created_AT
     }
     ABSENSI {
-        int absen_ID
-        string siswa_ID
-        string tutor_ID
+        int absen_ID PK
+        int siswa_ID
+        int tutor_ID
         date absen_DATE
-        string absen_SESSION
-        string absen_STATUS
+        varchar absen_SESSION
+        varchar absen_STATUS
     }
     PEMBAYARAN {
-        int pembayaran_ID
-        string siswa_ID
-        string pembayaran_STATUS
-        int pembayaran_NOMINAL
+        char pembayaran_ID PK
+        char siswa_ID
+        char pembayaran_STATUS
         date pembayaran_TENGGAT
         date pembayaran_TANGGAL
-        string kode_va
+        char pembayaran_NOMINAL
+        char kode_va
     }
 ```
-
-Tipe data pada diagram adalah perkiraan, bukan hasil ekspor dari database.
 
 ## Cara menjalankan
 
 1. Pasang XAMPP (atau PHP + MySQL lain), lalu jalankan Apache dan MySQL.
 2. Salin folder proyek ini ke `htdocs`.
-3. Buat database bernama `eduzone` di phpMyAdmin, lalu buat tabel sesuai diagram di atas. File SQL belum disertakan di repo ini.
+3. Impor database: buka phpMyAdmin, pilih tab **Import**, lalu pilih file `database/eduzone.sql`. File ini membuat database `eduzone` beserta 9 tabelnya dan mengisinya dengan data contoh fiktif.
 4. Sesuaikan koneksi di `includes/config.php`, `admin/includes/config.php`, dan `tutor/includes/config.php` (bawaan: `localhost`, user `root`, tanpa password, database `eduzone`).
 5. Buka `http://localhost/<nama-folder>/frontend/index.php` untuk halaman publik atau `http://localhost/<nama-folder>/login.php` untuk login admin dan tutor.
+
+Akun contoh: admin `admin@example.com` / `admin123`, tutor `tutor1@tutor` / `tutor123`, siswa `siswa1@siswa` / `siswa123`.
 
 ## Catatan
 
 - Berkas yang diunggah tutor disimpan di `uploads/materi/` dan sengaja tidak masuk ke Git karena bisa berisi data pribadi.
+- Seluruh data di `database/eduzone.sql` fiktif. Berkas materi yang dirujuk tabel `materi` tidak disertakan, jadi unggah sendiri lewat panel tutor.
 - Konfigurasi database bawaan hanya untuk pengembangan lokal.
 - Aplikasi ini dibuat sebagai proyek kuliah dan belum layak dipakai di server publik: password disimpan dan dibandingkan sebagai teks biasa, dan query disusun langsung dari input pengguna (rentan SQL injection).
