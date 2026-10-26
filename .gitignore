@@ -1,0 +1,21 @@
+# Berkas yang diunggah pengguna (bisa berisi data pribadi)
+uploads/materi/pdfs/*
+uploads/materi/videos/*
+!uploads/materi/pdfs/.gitkeep
+!uploads/materi/videos/.gitkeep
+
+# File mentah database MySQL
+*.frm
+*.ibd
+db.opt
+
+# Source map (hasil build, tidak diperlukan)
+*.map
+
+# IDE
+.idea/
+.vscode/
+
+# Sistem operasi
+.DS_Store
+Thumbs.db

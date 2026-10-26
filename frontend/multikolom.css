@@ -1,0 +1,146 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    min-height:100vh;
+}
+
+.background{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100vh;
+    background-image:url('images/background.jpeg');
+    background-size:cover;
+    background-position:center;
+    z-index:-2;
+}
+
+.background::after{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:rgba(255,255,255,0.2);
+}
+
+.containeratas{
+    width:90%;
+    margin:20px auto 0;
+}
+
+.blueback{
+    background:#18365c;
+    border-radius:10px 10px 0 0;
+}
+
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 30px;
+}
+
+menu{
+    display:flex;
+    gap:30px;
+    margin:0;
+    padding:0;
+}
+
+menu a{
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.headerkanan .btn{
+    border-radius:25px;
+    padding:8px 20px;
+    margin-left:10px;
+}
+
+.containertengah{
+    width:90%;
+    margin:0 auto;
+    height:350px;
+    display:flex;
+    align-items:center;
+    padding-left:60px;
+}
+
+.teks1{
+    max-width:420px;
+    margin-top:-40px;
+}
+
+.teks1 h1{
+    font-size:48px;
+    font-weight:bold;
+    color:black;
+    margin-bottom:20px;
+    line-height:1.1;
+}
+
+.teks1 h5{
+    font-size:20px;
+    line-height:1.6;
+    font-weight:normal;
+}
+
+.containerbawah{
+    width:85%;
+    margin:-20px auto 50px;
+    background:white;
+    padding:30px;
+    border-radius:8px;
+    text-align:center;
+    box-shadow:0 4px 15px rgba(0,0,0,0.15);
+}
+
+.containerbawah p{
+    font-size:22px;
+    font-weight:bold;
+    margin-bottom:25px;
+}
+
+.containerbawah{
+    display:flex;
+    flex-direction:column;
+}
+
+.containerbawah .fitur-wrapper{
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+}
+
+.fitur{
+    background:#f2f2f2;
+    border-radius:50px;
+    width:200px;
+    height:110px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:15px;
+}
+
+.fitur img{
+    width:40px;
+    height:40px;
+    object-fit:contain;
+}
+
+.fitur a{
+    text-decoration:none;
+    color:black;
+    font-weight:bold;
+    font-size:20px;
+}
