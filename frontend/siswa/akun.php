@@ -8,6 +8,7 @@ if (!isset($_SESSION["useremail"]) || $_SESSION["role"] !== "siswa") {
 }
 
 include("../../includes/config.php");
+include("../../includes/auth.php");
 
 $siswa_ID = $_SESSION['siswa_ID'] ?? null;
 if (!$siswa_ID) die("Session not found. Please log in again.");
@@ -32,15 +33,15 @@ $success_message = "";
 $error_message   = "";
 
 if (isset($_POST["Update"])) {
-    $new_password = mysqli_real_escape_string($conn, $_POST["passwordSiswa"]);
-    $update_query = mysqli_query($conn,
-        "UPDATE siswa SET siswa_PASS = '$new_password' WHERE siswa_ID = '$siswa_ID'"
-    );
-    if ($update_query) {
-        $siswa_pass      = $new_password;
+    $new_password = $_POST["passwordSiswa"];
+
+    if ($new_password === "" || password_sudah_hash($new_password) || ($new_password === $siswa_pass && password_sudah_hash($siswa_pass))) {
+        $error_message = "Masukkan password baru.";
+    } elseif (simpan_password($conn, "siswa", "siswa_ID", $siswa_ID, $new_password)) {
+        $siswa_pass      = password_hash($new_password, PASSWORD_DEFAULT); // form tidak menampilkan hash
         $success_message = "Password updated successfully!";
     } else {
-        $error_message = "Failed to update password: " . mysqli_error($conn);
+        $error_message = "Failed to update password.";
     }
 }
 
@@ -275,7 +276,7 @@ $today      = date('l, F j, Y');
                   <i class="ti ti-lock" style="color:#E53935;"></i>
                   <input type="text" class="field-input password-field"
                          id="passwordSiswa" name="passwordSiswa"
-                         value="<?= htmlspecialchars($siswa_pass) ?>" required>
+                         value="<?= htmlspecialchars(password_tampil($siswa_pass)) ?>" placeholder="Password baru" required>
                 </div>
                 <p class="field-hint">
                   <i class="ti ti-info-circle"></i>

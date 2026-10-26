@@ -5,6 +5,7 @@ session_start();
 // Database Connection.
 // Access the admin/includes/ folder to fetch config.php
 include("admin/includes/config.php");
+include("includes/auth.php");
 
 // 1. PROTECTION: IF ALREADY LOGGED IN, REDIRECT DIRECTLY TO RESPECTIVE DASHBOARD
 if (isset($_SESSION["useremail"])) {
@@ -19,67 +20,47 @@ if (isset($_SESSION["useremail"])) {
 
 // 2. PROCESS WHEN THE LOGIN BUTTON IS CLICKED
 if (isset($_POST["login"])) {
-    $useremail = mysqli_real_escape_string($conn, $_POST["user"]);
-    $userpass = mysqli_real_escape_string($conn, $_POST["pass"]);
+    $useremail = $_POST["user"];
+    $userpass = $_POST["pass"];
 
-    // Check if the user is registered in the ADMIN table
-    $sql_admin = mysqli_query($conn, "SELECT * FROM admin WHERE admin_USER = '$useremail' AND admin_PASS = '$userpass'");
-
-    if (mysqli_num_rows($sql_admin) > 0) {
-        $row_admin = mysqli_fetch_array($sql_admin);
-
-        // FIXED: Daftarkan ID Admin ke Session (Asumsi nama kolom di database: admin_ID atau id)
-        // Silakan sesuaikan 'admin_ID' dengan nama kolom ID asli di tabel admin kamu jika berbeda
+    if ($row_admin = cari_akun($conn, "admin", $useremail, $userpass)) {
+        session_regenerate_id(true);
         $_SESSION["admin_id"] = $row_admin["admin_ID"];
         $_SESSION["user_id"] = $row_admin["admin_ID"];
         $_SESSION["useremail"] = $row_admin["admin_USER"];
         $_SESSION["role"] = "admin";
 
-        echo "<pre>";
-        print_r($_SESSION);
-        echo "</pre>";
-        exit();
-
         header("Location: admin/dashboard.php");
         exit();
+    } elseif ($row_tutor = cari_akun($conn, "tutor", $useremail, $userpass)) {
+        session_regenerate_id(true);
+        $_SESSION["tutor_id"] = $row_tutor["tutor_ID"];
+        $_SESSION["user_id"] = $row_tutor["tutor_ID"];
+        $_SESSION["useremail"] = $row_tutor["tutor_USER"];
+        $_SESSION["role"] = "tutor";
+
+        header("Location: tutor/dashboard.php");
+        exit();
     } else {
+        // Login gagal: bersihkan session
+        $_SESSION = array();
+        session_unset();
 
-        // If not found in admin, check the TUTOR table
-        $sql_tutor = mysqli_query($conn, "SELECT * FROM tutor WHERE tutor_USER = '$useremail' AND tutor_PASS = '$userpass'");
-
-        if (mysqli_num_rows($sql_tutor) > 0) {
-            $row_tutor = mysqli_fetch_array($sql_tutor);
-
-            // FIXED: Daftarkan ID Tutor ke Session (Asumsi nama kolom di database: tutor_id atau id)
-            // Silakan sesuaikan 'tutor_id' dengan nama kolom ID asli di tabel tutor kamu jika berbeda
-            $_SESSION["tutor_id"] = $row_tutor["tutor_ID"];
-            $_SESSION["user_id"] = $row_tutor["tutor_ID"];
-            $_SESSION["useremail"] = $row_tutor["tutor_USER"];
-            $_SESSION["role"] = "tutor";
-
-            header("Location: tutor/dashboard.php");
-            exit();
-        } else {
-            // ADDITIONAL LOGICAL FLOW: IF LOGIN FAILS (BOTH ADMIN & TUTOR ARE WRONG)
-            $_SESSION = array();
-            session_unset();
-
-            if (ini_get("session.use_cookies")) {
-                $params = session_get_cookie_params();
-                setcookie(
-                    session_name(),
-                    '',
-                    time() - 42000,
-                    $params["path"],
-                    $params["domain"],
-                    $params["secure"],
-                    $params["httponly"]
-                );
-            }
-
-            session_destroy();
-            echo "<script>alert('Incorrect email or password! Your session has been cleared.');</script>";
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
         }
+
+        session_destroy();
+        echo "<script>alert('Incorrect email or password! Your session has been cleared.');</script>";
     }
 }
 ?>

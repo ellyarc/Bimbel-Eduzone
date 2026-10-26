@@ -5,6 +5,7 @@ session_start();
 // Database Connection.
 // Access the admin/includes/ folder to fetch config.php
 include("../includes/config.php");
+include("../includes/auth.php");
 
 // 1. PROTECTION: IF ALREADY LOGGED IN, REDIRECT DIRECTLY TO RESPECTIVE DASHBOARD
 if (isset($_SESSION["useremail"])) {
@@ -19,20 +20,12 @@ if (isset($_SESSION["useremail"])) {
 
 // 2. PROCESS WHEN THE LOGIN BUTTON IS CLICKED
 if (isset($_POST["login"])) {
-    $useremail = mysqli_real_escape_string($conn, $_POST["user"]);
-    $userpass  = mysqli_real_escape_string($conn, $_POST["pass"]);
+    $useremail = $_POST["user"];
+    $userpass  = $_POST["pass"];
 
     // ================= ADMIN =================
-    $sql_admin = mysqli_query($conn, "
-        SELECT * FROM admin 
-        WHERE admin_USER = '$useremail' 
-        AND admin_PASS = '$userpass'
-    ");
-
-    if (mysqli_num_rows($sql_admin) > 0) {
-
-        $row = mysqli_fetch_array($sql_admin);
-
+    if ($row = cari_akun($conn, "admin", $useremail, $userpass)) {
+        session_regenerate_id(true);
         $_SESSION["admin_id"] = $row["admin_ID"];
         $_SESSION["useremail"] = $row["admin_USER"];
         $_SESSION["role"] = "admin";
@@ -42,16 +35,8 @@ if (isset($_POST["login"])) {
     }
 
     // ================= TUTOR =================
-    $sql_tutor = mysqli_query($conn, "
-        SELECT * FROM tutor 
-        WHERE tutor_USER = '$useremail' 
-        AND tutor_PASS = '$userpass'
-    ");
-
-    if (mysqli_num_rows($sql_tutor) > 0) {
-
-        $row = mysqli_fetch_array($sql_tutor);
-
+    if ($row = cari_akun($conn, "tutor", $useremail, $userpass)) {
+        session_regenerate_id(true);
         $_SESSION["tutor_id"] = $row["tutor_ID"];
         $_SESSION["useremail"] = $row["tutor_USER"];
         $_SESSION["role"] = "tutor";
@@ -61,20 +46,12 @@ if (isset($_POST["login"])) {
     }
 
     // ================= SISWA =================
-    $sql_siswa = mysqli_query($conn, "
-        SELECT * FROM siswa 
-        WHERE siswa_USER = '$useremail' 
-        AND siswa_PASS = '$userpass'
-    ");
-
-    if (mysqli_num_rows($sql_siswa) > 0) {
-
-        $row = mysqli_fetch_array($sql_siswa);
-
+    if ($row = cari_akun($conn, "siswa", $useremail, $userpass)) {
+        session_regenerate_id(true);
         $_SESSION["useremail"] = $row["siswa_USER"];
         $_SESSION["role"] = "siswa";
         $_SESSION["siswa_ID"] = $row["siswa_ID"];
-        
+
         header("Location: ../frontend/siswa/home.php");
         exit();
     }

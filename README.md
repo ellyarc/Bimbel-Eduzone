@@ -130,7 +130,7 @@ erDiagram
 
 1. Pasang XAMPP (atau PHP + MySQL lain), lalu jalankan Apache dan MySQL.
 2. Salin folder proyek ini ke `htdocs`.
-3. Impor database: buka phpMyAdmin, pilih tab **Import**, lalu pilih file `database/eduzone.sql`. File ini membuat database `eduzone` beserta 9 tabelnya dan mengisinya dengan data contoh fiktif.
+3. Impor database: buka phpMyAdmin, pilih tab **Import**, lalu pilih file `database/eduzone.sql`. File ini membuat database `eduzone` beserta 9 tabelnya dan mengisinya dengan data contoh fiktif. Kalau database `eduzone` sudah ada, hapus dulu (`DROP DATABASE eduzone;`) supaya impor tidak gagal.
 4. Sesuaikan koneksi di `includes/config.php`, `admin/includes/config.php`, dan `tutor/includes/config.php` (bawaan: `localhost`, user `root`, tanpa password, database `eduzone`).
 5. Buka `http://localhost/<nama-folder>/frontend/index.php` untuk halaman publik atau `http://localhost/<nama-folder>/login.php` untuk login admin dan tutor.
 
@@ -141,4 +141,5 @@ Akun contoh: admin `admin@example.com` / `admin123`, tutor `tutor1@tutor` / `tut
 - Berkas yang diunggah tutor disimpan di `uploads/materi/` dan sengaja tidak masuk ke Git karena bisa berisi data pribadi.
 - Seluruh data di `database/eduzone.sql` fiktif. Berkas materi yang dirujuk tabel `materi` tidak disertakan, jadi unggah sendiri lewat panel tutor.
 - Konfigurasi database bawaan hanya untuk pengembangan lokal.
-- Aplikasi ini dibuat sebagai proyek kuliah dan belum layak dipakai di server publik: password disimpan dan dibandingkan sebagai teks biasa, dan query disusun langsung dari input pengguna (rentan SQL injection).
+- Login memakai query terparameter dan password ter-hash (bcrypt). Password lama yang masih teks biasa, termasuk akun contoh di SQL, otomatis diubah menjadi hash saat login pertama. Halaman "akun" tidak pernah menampilkan hash.
+- Aplikasi ini dibuat sebagai proyek kuliah dan belum layak dipakai di server publik. Halaman admin dan tutor lainnya masih menyusun query dengan string (dengan `mysqli_real_escape_string` atau `intval`), belum prepared statement. Akun yang dibuat admin lewat form tambah dan ubah siswa atau tutor juga masih disimpan sebagai teks biasa sampai pemiliknya login.

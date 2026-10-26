@@ -10,6 +10,7 @@ if (!isset($_SESSION["useremail"])) {
 
 // Connecting to the database
 include("../includes/config.php");
+include("../includes/auth.php");
 
 // Get the logged-in username stored in the session
 $session_login = $_SESSION["useremail"];
@@ -29,16 +30,15 @@ $success_message = "";
 $error_message = "";
 
 if (isset($_POST["Update"])) {
-    $new_password = mysqli_real_escape_string($conn, $_POST["passwordtutor"]);
+    $new_password = $_POST["passwordtutor"];
 
-    // Update password using the 'tutor_PASS' attribute based on 'tutor_USER'
-    $update_query = mysqli_query($conn, "UPDATE tutor SET tutor_PASS = '$new_password' WHERE tutor_USER = '$session_login'");
-
-    if ($update_query) {
-        $tutor_pass = $new_password; // Refresh the displayed password in the form after success
+    if ($new_password === "" || password_sudah_hash($new_password) || ($new_password === $tutor_pass && password_sudah_hash($tutor_pass))) {
+        $error_message = "Masukkan password baru.";
+    } elseif (simpan_password($conn, "tutor", "tutor_USER", $session_login, $new_password)) {
+        $tutor_pass = password_hash($new_password, PASSWORD_DEFAULT); // form tidak menampilkan hash
         $success_message = "Password has been successfully updated!";
     } else {
-        $error_message = "Failed to update password: " . mysqli_error($conn);
+        $error_message = "Failed to update password.";
     }
 }
 ?>
@@ -194,7 +194,7 @@ if (isset($_POST["Update"])) {
                                             <label for="passwordtutor" class="form-label fw-semibold text-danger">New System Password</label>
                                             <div class="input-group">
                                                 <span class="input-group-text" style="background-color: #fff5f5; border-color: #fab6b6; color: #e74a3b;"><i class="bi bi-shield-lock-fill"></i></span>
-                                                <input type="text" class="form-control" id="passwordtutor" name="passwordtutor" value="<?php echo htmlspecialchars($tutor_pass); ?>" required style="border-color: #fab6b6; font-weight: 500;">
+                                                <input type="text" class="form-control" id="passwordtutor" name="passwordtutor" value="<?php echo htmlspecialchars(password_tampil($tutor_pass)); ?>" placeholder="Password baru" required style="border-color: #fab6b6; font-weight: 500;">
                                             </div>
                                             <div class="form-text text-muted small mt-2">
                                                 <i class="bi bi-info-circle me-1"></i> Please clear the old text above and type your new password to update your system login credentials.

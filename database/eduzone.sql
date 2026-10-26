@@ -1,6 +1,7 @@
 -- Skema database Bimbel EduZone dengan data contoh (fiktif).
 -- Akun login contoh: admin@example.com / admin123, tutor1@tutor / tutor123,
--- siswa1@siswa / siswa123 (password sengaja teks biasa karena kode login membandingkannya apa adanya).
+-- siswa1@siswa / siswa123 (password contoh sengaja teks biasa; otomatis diubah menjadi hash saat login pertama).
+-- Kalau database eduzone sudah ada, hapus dulu agar impor tidak gagal: DROP DATABASE eduzone;
 
 CREATE DATABASE IF NOT EXISTS `eduzone` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE `eduzone`;
